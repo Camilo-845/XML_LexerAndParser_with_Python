@@ -1,7 +1,13 @@
+from lxml import etree
 from Token import Token, tokenType
 import re
 
-class lexer:
+def xmlToString(xmlRoot):
+    tree = etree.parse(xmlRoot)
+    return str(etree.tostring(tree, encoding='utf8', method='xml'))[2:-1]
+
+
+class Lexer:
     def __init__(self, text:str) -> None:
         self.textIter = iter(text)
         self.code = text
@@ -15,8 +21,9 @@ class lexer:
 
     def scan(self):
         while self.current is not None:
-            if(self.current == '\n'):
+            if(self.current =="\\" or self.current == '\\n'):
                 self.currentLine += 1
+                self.continuar()
                 self.continuar()
             if(self.current in ('\t',' ')):
                 self.continuar()
@@ -24,7 +31,7 @@ class lexer:
                 self.continuar()
                 return Token(tokenType.ASIGNACION,"=",self.currentLine)
             elif (self.current == "\""):
-                response:Token = self.evaluarCadena(tokenType.CADENA_DE_TEXTO_TIPO_STRING, "[^<,>]")
+                response:Token = self.evaluarCadenaTipoStr(tokenType.CADENA_DE_TEXTO_TIPO_STRING, "[^<,>,=,\n]")
                 if(response != None and not re.search("\"[^<,>]*\"", response.lexema)):
                     return None
                 return response
@@ -37,8 +44,8 @@ class lexer:
                 return self.evaluarTipoComplejo(['/>'],[tokenType.CIERRE_ESPECIAL_DE_ETIQUETA],"[>,/]")
             elif (self.current == '>'):
                 return self.evaluarTipoComplejo(['>'],[tokenType.CIERRE_DE_ETIQUETA],">")
-            elif (re.search("[^<,>]",self.current)):
-                return self.evaluarCadena(tokenType.CADENA,"[^<,>,\",=]")
+            elif (re.search("[^<,>,\n]",self.current)):
+                return self.evaluarCadena(tokenType.CADENA,"[^<,>,\",=,\n,/]")
             else:
                 self.continuar()
         return None
@@ -82,6 +89,22 @@ class lexer:
         if(cadena != ''):
             return Token(tipo, cadena, self.currentLine)
         return None
-lexer1 = lexer("<xsd:element name=342>\n<xsd:complexType>\n<xsd:element name = \"addresasdfasds\">\n<xsd:element name=\"shipTo\"/>\n</xsd:element name=\"address\">\n</xsd:complexType>\n</xsd:element name=\"asdfas\">").scanAll()
+    
+    def evaluarCadenaTipoStr(self,tipo,regex):
+        cadena:str = '"'
+        self.continuar()
+        while self.current not in (None,'"') and re.search(regex,self.current):
+            cadena += self.current
+            self.continuar()
+        if(self.current == '"'):
+            cadena += self.current
+            self.continuar()
+        else: 
+            return None
+        if(cadena != ''):
+            return Token(tipo, cadena, self.currentLine)
+        return None
+
+lexer1 = Lexer(xmlToString("./Estructura.xml")).scanAll()
 for i in lexer1:
     print(str(i))
