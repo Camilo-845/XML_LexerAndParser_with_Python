@@ -2,11 +2,6 @@ from lxml import etree
 from Token import Token, tokenType
 import re
 
-def xmlToString(xmlRoot):
-    tree = etree.parse(xmlRoot)
-    return str(etree.tostring(tree, encoding='utf8', method='xml'))[2:-1]
-
-
 class Lexer:
     def __init__(self, text:str) -> None:
         self.textIter = iter(text)
@@ -104,7 +99,3 @@ class Lexer:
         if(cadena != ''):
             return Token(tipo, cadena, self.currentLine)
         return None
-
-lexer1 = Lexer(xmlToString("./Estructura.xml")).scanAll()
-for i in lexer1:
-    print(str(i))
