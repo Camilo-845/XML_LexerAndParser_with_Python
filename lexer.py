@@ -16,9 +16,8 @@ class Lexer:
 
     def scan(self):
         while self.current is not None:
-            if(self.current =="\\" or self.current == '\\n'):
+            if(self.current == "\n"):
                 self.currentLine += 1
-                self.continuar()
                 self.continuar()
             if(self.current in ('\t',' ')):
                 self.continuar()
@@ -39,7 +38,7 @@ class Lexer:
                 return self.evaluarTipoComplejo(['/>'],[tokenType.CIERRE_ESPECIAL_DE_ETIQUETA],"[>,/]")
             elif (self.current == '>'):
                 return self.evaluarTipoComplejo(['>'],[tokenType.CIERRE_DE_ETIQUETA],">")
-            elif (re.search("[^<,>,\n]",self.current)):
+            elif (type (self.current) == str and re.search("[^<,>,\n]",self.current)):
                 return self.evaluarCadena(tokenType.CADENA,"[^<,>,\",=,\n,/]")
             else:
                 self.continuar()
@@ -54,13 +53,13 @@ class Lexer:
                 for tokenItem in token:
                     if tokenItem is None:
                         if self.current != None:
-                            print("Error de lexico en la linea: ", self.currentLine)
+                            print("Error de lexico e en la linea: ", self.currentLine)
                         break
                     tokens.append(tokenItem)
             else:
                 if token is None:
                     if self.current != None:
-                        print("Error de lexico en la linea: ", self.currentLine)
+                        print("Error de lexico en la linea: ", self.currentLine, " valor : ", self.current)
                     break
                 tokens.append(token)
         return tokens

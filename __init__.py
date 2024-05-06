@@ -1,8 +1,15 @@
 from xmlToString import xmlToString
 from Parser import Parser
 
-xmlString = xmlToString("./Estructura.xml")
-parser = Parser(xmlString)
+xmlFilePath = "./Estructura.xml"
+
+f = open(xmlFilePath, 'r')
+Datos = f.read()
+f.close()
+
+
+parser = Parser(Datos)
+
 
 collecciones = parser.analizarSintaxis()
 index = 1

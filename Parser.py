@@ -1,6 +1,7 @@
 from lexer import Lexer
 from Token import tokenType
 from Token import Token
+from TokensCollection import TokenCollection
 
 elementosSintacticos = [
     [tokenType.APERTURA_DE_ETIQUETA, tokenType.NOMBRE_DE_ETIQUETA, tokenType.CIERRE_DE_ETIQUETA]
@@ -9,14 +10,12 @@ elementosSintacticos = [
 class Parser: 
     def __init__(self, text:str):
         self.tokensIter = iter(Lexer(text).scanAll())
-        self.tokens = Lexer(text).scanAll()
         self.currentToken:Token = None
-        self.currentTokenIndex = 0
+        self.tokensCollection:TokenCollection = None
     
     def __continuar__ (self):
         try:
             self.currentToken = next(self.tokensIter)
-            self.currentTokenIndex += 1
         except StopIteration:
             self.currentToken = None
        
@@ -68,7 +67,7 @@ class Parser:
                 return [self.currentToken]
             else:
                 return None
-         
+
     def __scanAll__(self):
         conjuntos = []
         self.__continuar__()
@@ -78,18 +77,13 @@ class Parser:
                 if(self.currentToken != None):
                     print("Error de lexico cerca de la linea: ", self.currentToken.line)
                 break
-            conjuntos.append(conjuntoTokens)   
-        return conjuntos
-    
-    def __evaluarSecuenciaTipos__ (self, secuencia:list) -> bool:
-        for secuenciaTokenType in secuencia:
-            if(self.currentToken is None ):
-                return None
-            if(secuenciaTokenType != self.currentToken.token_type):
-                return False
-            self.__continuar__()
-        return True
+            conjuntos.append(conjuntoTokens)
+        self.tokensCollection = conjuntos
+        return conjuntos  
 
-    def analizarSintaxis(self):
-        return self.__scanAll__()
+    def analizarSintaxis (self) :
+        scaneo = self.__scanAll__()
+        collection = TokenCollection(scaneo)
+        collection.anidarEtiquetas()
+        return scaneo
     
