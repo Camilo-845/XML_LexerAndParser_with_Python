@@ -1,4 +1,3 @@
-from xmlToString import xmlToString
 from Parser import Parser
 
 xmlFilePath = "./Estructura.xml"
